@@ -103,3 +103,31 @@ export default AuthRoute;
 ```
 
 **token 和权限路由的配合使用，完成了权限控制**
+
+## 主页 layout 功能
+
+### 点击菜单跳转路由
+
+**路由结构**
+Layout
+--home
+--article
+--publish
+
+1. 设置二级路由出口
+   `<Outlet />`标签
+2. 给 menu 菜单设置点击事件，获取点击事件
+3. 在点击事件中获取当前点击项的 path 属性
+
+```js
+const onClickMenu = (route) => {
+  console.log(route); //route中包含path
+};
+```
+
+4. 使用 useNavigate 进行路由跳转
+
+```js
+const navigate = useNavigate();
+navigate(key.path[0]);
+```
