@@ -150,3 +150,33 @@ useEffect(() => {
 ```
 
 3. 在视图中展示,用户名:{userName}
+
+### 用户登出
+
+业务逻辑
+
+1. 清除 redux 中的 token，userInfo
+2. 清除 application 中的 token
+3. 跳转到登录页面
+
+代码实现
+
+1. 给冒泡按钮设置确定点击事件
+2. 在点击事件中清除 redux 中的 token，userInfo，application 中的 token
+
+```js
+clearUserInfo(state) {
+      state.token = "";
+      state.userInfo = {};
+      removeToken();
+    },
+```
+
+3. 跳转到登录页面
+
+```js
+const onClickLogout = () => {
+  dispatch(clearUserInfo());
+  navigate("/login");
+};
+```

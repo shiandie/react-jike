@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getToken, http, setToken } from "@/utils";
+import { getToken, http, removeToken, setToken } from "@/utils";
 const userStore = createSlice({
   name: "user",
   // 数据状态
@@ -16,11 +16,16 @@ const userStore = createSlice({
     setUserInfo(state, action) {
       state.userInfo = action.payload;
     },
+    clearUserInfo(state) {
+      state.token = "";
+      state.userInfo = {};
+      removeToken();
+    },
   },
 });
 
 // 解构出actionCreater
-const { setUserToken, setUserInfo } = userStore.actions;
+const { setUserToken, setUserInfo, clearUserInfo } = userStore.actions;
 
 // 获取reducer函数
 const userReducer = userStore.reducer;
@@ -39,6 +44,6 @@ const fetchUserInfo = () => {
   };
 };
 
-export { fetchLogin, fetchUserInfo };
+export { fetchLogin, fetchUserInfo, clearUserInfo };
 
 export default userReducer;
