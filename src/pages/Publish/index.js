@@ -38,8 +38,8 @@ const Publish = () => {
       content, // 内容
       type: 1,
       cover: {
-        type: 1,
-        images: [],
+        type: radioValue, //封面类型
+        images: imageList.map((item) => item.response.data.url), //图片地址
       },
     };
     await http.post("/mp/articles?draft=false", params);
@@ -50,6 +50,10 @@ const Publish = () => {
   const [imageList, setImageList] = useState([]);
   const onUploadChange = (info) => {
     setImageList(info.fileList);
+  };
+  const [radioValue, setRadioValue] = useState(0);
+  const onChangeRadio = (e) => {
+    setRadioValue(e.target.value);
   };
 
   return (
@@ -69,23 +73,26 @@ const Publish = () => {
       </Form.Item>
       <Form.Item label="封面">
         <Form.Item name="type">
-          <Radio.Group>
+          <Radio.Group onChange={onChangeRadio} value={radioValue}>
             <Radio value={1}>单图</Radio>
             <Radio value={3}>三图</Radio>
             <Radio value={0}>无图</Radio>
           </Radio.Group>
         </Form.Item>
-        <Upload
-          name="image"
-          listType="picture-card"
-          showUploadList
-          action={"http://geek.itheima.net/v1_0/upload"}
-          onChange={onUploadChange}
-        >
-          <div style={{ marginTop: 8 }}>
-            <PlusOutlined />
-          </div>
-        </Upload>
+        {radioValue > 0 && (
+          <Upload
+            name="image"
+            listType="picture-card"
+            showUploadList
+            action={"http://geek.itheima.net/v1_0/upload"}
+            onChange={onUploadChange}
+            maxCount={radioValue}
+          >
+            <div style={{ marginTop: 8 }}>
+              <PlusOutlined />
+            </div>
+          </Upload>
+        )}
       </Form.Item>
       <Card
         title={
