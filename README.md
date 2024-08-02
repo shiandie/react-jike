@@ -201,8 +201,54 @@ http.interceptors.response.use(
       router.navigate("/login");
       window.location.reload();
     }
-
     return Promise.reject(error);
   }
 );
+```
+
+## 文章发布页
+
+### 收集文章数据
+
+```js
+const onFinishForm = async (values) => {
+  console.log("Success:", values);
+};
+```
+
+### 拼接请求参数
+
+```js
+const { title, channel_id, content } = values;
+const params = {
+  title, // 标题
+  channel_id, // 频道id
+  content, // 内容
+  type: 1,
+  cover: {
+    type: 1,
+    images: [],
+  },
+};
+```
+
+**调用 api**
+
+```js
+await http.post("/mp/articles?draft=false", params);
+message.success("发布文章成功");
+```
+
+### 图片上传
+
+**1. 为 Upload 组件添加 `action 属性`，配置封面图片上传接口地址**
+**2. 为 Upload 组件添加 `name属性`, 接口要求的字段名**
+**3. 为 Upload 添加 `onChange 属性`，在事件中拿到当前图片数据，并存储到 React 状态中**
+
+```js
+// 上传图片并存储图片信息
+const [imageList, setImageList] = useState([]);
+const onUploadChange = (info) => {
+  setImageList(info.fileList);
+};
 ```
