@@ -17,3 +17,46 @@ const onFinish = (values) => {
   console.log("Success:", values);
 };
 ```
+
+### 登录逻辑和添加 token
+
+1. token 交给 redux 管理
+2. 编写异步方法，修改 token
+3. 登录逻辑
+   3.1 使用 useNavigate 进行路由跳转
+   3.2 使用 useDispatch 调用异步方法，登录成功的时候，把这次用户 token 保存到 redux
+   3.3 添加跳转成功通知
+
+### token 持久化
+
+redux 存储是基于内存的，因此存储 token 给 redux 同时，把 token 添加到 application 中
+
+1. 使用 localStorage..setItem 方法把 token 存储到 application 中
+2. 使用 localStorage..setItem 方法在获取应用中的 token
+   **为方便调用。封装 token 方法**
+
+```js
+// 封装存取方法
+
+const TOKENKEY = "token_key";
+
+function setToken(token) {
+  return localStorage.setItem(TOKENKEY, token);
+}
+
+function getToken() {
+  return localStorage.getItem(TOKENKEY);
+}
+
+function removeToken() {
+  return localStorage.removeItem(TOKENKEY);
+}
+
+export { setToken, getToken, removeToken };
+```
+
+3. 初始化的时候，如果应用中有 token，则把应用中的 token 存储到 redux 中
+
+```js
+token: getToken() || "";
+```

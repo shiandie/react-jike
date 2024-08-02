@@ -20,7 +20,7 @@ const Login = () => {
         {/* 登录表单 */}
         <Form
           onFinish={onFinish}
-          initialValues={{ mobile: "13811111111", code: "246810" }}
+          initialValues={{ mobile: "13800000002", code: "246810" }}
           validateTrigger={["onBlur"]}
         >
           <Form.Item
