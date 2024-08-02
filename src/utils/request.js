@@ -1,5 +1,6 @@
 import axios from "axios";
-import { getToken } from "./token";
+import { getToken, clearToken } from "./token";
+import { Router } from "react-router-dom";
 
 const http = axios.create({
   baseURL: "http://geek.itheima.net/v1_0",
@@ -18,6 +19,13 @@ http.interceptors.request.use(
     return config;
   },
   (error) => {
+    // 对请求错误做些什么
+    console.log(error);
+    if (error.response.status === 401) {
+      clearToken();
+      Router.navigate("/login");
+      window.location.reload();
+    }
     return Promise.reject(error);
   }
 );

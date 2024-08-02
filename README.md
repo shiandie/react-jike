@@ -180,3 +180,29 @@ const onClickLogout = () => {
   navigate("/login");
 };
 ```
+
+# 处理 Token 失效
+
+> 业务背景：如果用户一段时间不做任何操作，到时之后应该清除所有过期用户信息跳回到登录
+
+```javascript
+http.interceptors.response.use(
+  (response) => {
+    // 2xx 范围内的状态码都会触发该函数。
+    // 对响应数据做点什么
+    return response.data;
+  },
+  (error) => {
+    // 超出 2xx 范围的状态码都会触发该函数。
+    // 对响应错误做点什么
+    console.dir(error);
+    if (error.response.status === 401) {
+      clearToken();
+      router.navigate("/login");
+      window.location.reload();
+    }
+
+    return Promise.reject(error);
+  }
+);
+```
