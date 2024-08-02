@@ -60,3 +60,46 @@ export { setToken, getToken, removeToken };
 ```js
 token: getToken() || "";
 ```
+
+### 权限控制
+
+将 token 添加到请求头
+
+```js
+const token = getToken();
+if (token) {
+  config.headers.Authorization = `Bearer ${token}`;
+}
+```
+
+**路由鉴权实现**
+判断本地是否有 token，如果有，就返回子组件，否则就重定向到登录 Login
+**代码实现**
+`components/AuthRoute/index.jsx`
+
+```jsx
+import { getToken } from "@/utils";
+import { Navigate } from "react-router-dom";
+
+const AuthRoute = ({ children }) => {
+  const isToken = getToken();
+  if (isToken) {
+    return <>{children}</>;
+  } else {
+    return <Navigate to="/login" replace />;
+  }
+};
+
+export default AuthRoute;
+```
+
+`src/router/index.jsx`
+
+```js
+  {
+    path: '/',
+    element: <AuthRoute><Layout /></AuthRoute>,
+  },
+```
+
+**token 和权限路由的配合使用，完成了权限控制**
