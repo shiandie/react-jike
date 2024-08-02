@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getToken, clearToken } from "./token";
+import { getToken, removeToken } from "./token";
 import { Router } from "react-router-dom";
 
 const http = axios.create({
@@ -22,7 +22,7 @@ http.interceptors.request.use(
     // 对请求错误做些什么
     console.log(error);
     if (error.response.status === 401) {
-      clearToken();
+      removeToken();
       Router.navigate("/login");
       window.location.reload();
     }
