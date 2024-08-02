@@ -131,3 +131,22 @@ const onClickMenu = (route) => {
 const navigate = useNavigate();
 navigate(key.path[0]);
 ```
+
+### 展示个人信息
+
+1. 在 Redux 的 store 中定义用户信息，setter 方法,和异步请求获取用户信息方法
+
+2. 在 Layout 组件中触发 action 的执行
+   2.1 使用 useSelector，允许在组件中访问 redux 中的数据
+   2.2 使用 useDispatch，允许在组件中触发 action 的执行
+   2.3 为什么要使用 useEffect，依赖项为什么是 dispatch
+
+```js
+const userName = useSelector((state) => state.user.userInfo.name);
+const dispatch = useDispatch();
+useEffect(() => {
+  dispatch(fetchUserInfo());
+}, [dispatch]);
+```
+
+3. 在视图中展示,用户名:{userName}
