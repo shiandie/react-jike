@@ -252,3 +252,32 @@ const onUploadChange = (info) => {
   setImageList(info.fileList);
 };
 ```
+
+## 文章列表
+
+### 获取文章列表
+
+1.  使用 useState 存储文章列表
+2.  使用 axios 请求获取文章列表
+3.  渲染列表
+
+## 筛选功能实现
+
+**使用请求参数调用后端接口，返回符合的列表**
+
+1.  准备请求参数
+2.  收集用户输入的条件，并将其存到请求参数中
+3.  请求参数变化，重新请求文章列表.使用 useEffect 的副作用
+
+```js
+useEffect(() => {
+ async function getArticleList() {
+     const res = await http.get("/mp/articles", { params });
+}, [params]);
+```
+
+```
+
+
+
+```
