@@ -261,13 +261,53 @@ const onUploadChange = (info) => {
 2.  使用 axios 请求获取文章列表
 3.  渲染列表
 
+### 文章状态显示
+
+**枚举方法**
+
+```js
+const state = {
+  1: <Tag color="warning">待审核</Tag>,
+  2: <Tag color="green">审核通过</Tag>,
+};
+```
+
 ## 筛选功能实现
 
 **使用请求参数调用后端接口，返回符合的列表**
 
 1.  准备请求参数
+
+```js
+const [params, setParams] = useState({
+  state: "",
+  channel_id: "",
+  begin_pubdate: "",
+  end_pubdate: "",
+  page: 1,
+  per_page: 4,
+});
+```
+
 2.  收集用户输入的条件，并将其存到请求参数中
+    2.1 使用 onFinish 收集表单数据，然后
+
+```js
+const onFinish = (values) => {
+  const { channel_id, status, date } = values;
+  setParams({
+    ...params,
+    channel_id: channel_id,
+    status: status,
+    begin_pubdate: date[0].format("YYYY-MM-DD"),
+    end_pubdate: date[0].format("YYYY-MM-DD"),
+  });
+};
+```
+
 3.  请求参数变化，重新请求文章列表.使用 useEffect 的副作用
+    3.1 每次请求**外部 API 参数**params 发生变化，都会执行 useEffect
+    `useEffect(()=>{...fetchAPI(params)}, [params])`
 
 ```js
 useEffect(() => {
@@ -276,8 +316,25 @@ useEffect(() => {
 }, [params]);
 ```
 
-```
+### 表格分页
 
+1. 给表格添加 pagination 属性，配置分页器
+2. 在分页器中设置 total，current，pageSize 等属性
+3. **页面跳转**在分页器中添加 onChange 属性，在事件中拿到当前页码，并更新请求参数中的 page 属性
 
-
+```js
+<Table
+  pagination={{
+    total: article.count,
+    pageSize: params.per_page,
+    current: params.page,
+    onChange: (page) => {
+      setParams({
+        //以下是简写方式
+        ...params,
+        page,
+      });
+    },
+  }}
+/>
 ```

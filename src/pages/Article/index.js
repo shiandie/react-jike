@@ -16,82 +16,132 @@ import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import img404 from "@/assets/error.png";
 import { useEffect, useState } from "react";
 import { http } from "@/utils";
+import { getArticleListAPI } from "@/apis/article";
+import { render } from "@testing-library/react";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const Article = () => {
-  // 准备列数据
-  const columns = [
-    {
-      title: "封面",
-      dataIndex: "cover",
-      width: 120,
-      render: (cover) => {
-        return (
-          <img src={cover.images[0] || img404} width={80} height={60} alt="" />
-        );
-      },
-    },
-    {
-      title: "标题",
-      dataIndex: "title",
-      width: 220,
-    },
-    {
-      title: "状态",
-      dataIndex: "status",
-      render: (data) => <Tag color="green">审核通过</Tag>,
-    },
-    {
-      title: "发布时间",
-      dataIndex: "pubdate",
-    },
-    {
-      title: "阅读数",
-      dataIndex: "read_count",
-    },
-    {
-      title: "评论数",
-      dataIndex: "comment_count",
-    },
-    {
-      title: "点赞数",
-      dataIndex: "like_count",
-    },
-    {
-      title: "操作",
-      render: (data) => {
-        return (
-          <Space size="middle">
-            <Button type="primary" shape="circle" icon={<EditOutlined />} />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-            />
-          </Space>
-        );
-      },
-    },
-  ];
-  // 准备表格body数据
-  const data = [
-    {
-      id: "8218",
-      comment_count: 0,
-      cover: {
-        images: [],
-      },
-      like_count: 0,
-      pubdate: "2019-03-11 09:00:00",
-      read_count: 2,
-      status: 2,
-      title: "wkwebview离线化加载h5资源解决方案",
-    },
-  ];
+//状态枚举
+const state = {
+  1: <Tag color="warning">待审核</Tag>,
+  2: <Tag color="green">审核通过</Tag>,
+};
 
+// 准备列数据
+const columns = [
+  {
+    title: "封面",
+    dataIndex: "cover",
+    width: 120,
+    render: (cover) => {
+      return (
+        <img src={cover.images[0] || img404} width={80} height={60} alt="" />
+      );
+    },
+  },
+  {
+    title: "标题",
+    dataIndex: "title",
+    width: 220,
+  },
+  {
+    title: "状态",
+    dataIndex: "status",
+    render: (data) => state[data],
+  },
+  {
+    title: "发布时间",
+    dataIndex: "pubdate",
+  },
+  {
+    title: "阅读数",
+    dataIndex: "read_count",
+  },
+  {
+    title: "评论数",
+    dataIndex: "comment_count",
+  },
+  {
+    title: "点赞数",
+    dataIndex: "like_count",
+  },
+  {
+    title: "操作",
+    render: (data) => {
+      return (
+        <Space size="middle">
+          <Button type="primary" shape="circle" icon={<EditOutlined />} />
+          <Button
+            type="primary"
+            danger
+            shape="circle"
+            icon={<DeleteOutlined />}
+          />
+        </Space>
+      );
+    },
+  },
+];
+// 准备表格body数据
+const data = [
+  {
+    id: "8218",
+    comment_count: 0,
+    cover: {
+      images: [],
+    },
+    like_count: 0,
+    pubdate: "2019-03-11 09:00:00",
+    read_count: 2,
+    status: 2,
+    title: "wkwebview离线化加载h5资源解决方案",
+  },
+];
+const Article = () => {
+  const [article, setArticleList] = useState({
+    list: [],
+    count: 0,
+  });
+  //获取频道列表
+  const [channels, setChannels] = useState([]);
+
+  //准备请求参数
+  const [params, setParams] = useState({
+    state: "",
+    channel_id: "",
+    begin_pubdate: "",
+    end_pubdate: "",
+    page: 1,
+    per_page: 4,
+  });
+  //收集表单数据
+  const onFinish = (values) => {
+    const { channel_id, status, date } = values;
+    setParams({
+      ...params,
+      channel_id: channel_id,
+      status: status,
+      begin_pubdate: date[0].format("YYYY-MM-DD"),
+      end_pubdate: date[0].format("YYYY-MM-DD"),
+    });
+  };
+  useEffect(() => {
+    async function fetchArticleList() {
+      const res = await getArticleListAPI(params);
+      const { results, total_count } = res.data;
+      setArticleList({
+        list: results,
+        count: total_count,
+      });
+    }
+    async function fetchChannels() {
+      const res = await http.get("/channels");
+      setChannels(res.data.channels);
+    }
+    fetchChannels();
+    fetchArticleList();
+  }, [params]);
   return (
     <div>
       <Card
@@ -105,7 +155,7 @@ const Article = () => {
         }
         style={{ marginBottom: 20 }}
       >
-        <Form initialValues={{ status: "" }}>
+        <Form onFinish={onFinish} initialValues={{ status: "" }}>
           <Form.Item label="状态" name="status">
             <Radio.Group>
               <Radio value={""}>全部</Radio>
@@ -120,9 +170,11 @@ const Article = () => {
               defaultValue="lucy"
               style={{ width: 120 }}
             >
-              <Option value={1} key={1}>
-                jack
-              </Option>
+              {channels.map((item) => (
+                <Option value={item.id} key={item.id}>
+                  {item.name}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -140,8 +192,23 @@ const Article = () => {
       </Card>
       <div>
         {/*        */}
-        <Card title={`根据筛选条件共查询到 count 条结果：`}>
-          <Table rowKey="id" columns={columns} dataSource={data} />
+        <Card title={`根据筛选条件共查询到 ${article.count} 条结果：`}>
+          <Table
+            rowKey="id"
+            columns={columns}
+            dataSource={article.list}
+            pagination={{
+              total: article.count,
+              pageSize: params.per_page,
+              current: params.page,
+              onChange: (page) => {
+                setParams({
+                  ...params,
+                  page,
+                });
+              },
+            }}
+          />
         </Card>
       </div>
     </div>
